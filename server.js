@@ -19,14 +19,28 @@ const io = socketio(server);
 app.get("/", (req, res) =>{
     res.sendFile(__dirname + "/client/index.html");
 })
+app.post("/convo",(req, res)=>{
+    
+    const sql = "SELECT messageid,userid, message_text FROM message";
+    con.query(sql, (err,result)=>{
+        if(!err){
+            return res.status(200).json(result);
+    
+            
+
+        }
+        return res.status(500).json({message:"server Error"});
+    })
+})
+
 
 app.get("/login",(req, res)=>{
-    res.sendFile(__dirname + "/client/login.html")
+    res.sendFile(__dirname + "/client/login.html");
 })
 app.post("/login",(req, res)=>{
     const {username, userlast , useremail, userpassword}=req.body;
     const sql = "SELECT userid,username, userlast, useremail FROM register WHERE username=?, userlast=? , useremail=?, userpassword=?";
-    con.query(sql, {username, userlast , useremail, userpassword}, (err,result)=>{
+    con.query(sql, [username, userlast , useremail, userpassword], (err,result)=>{
         if(!err){
             if(result.affectedRows > 0){
                 return res.status(200).json({message:"Successfully login,"});
@@ -37,25 +51,25 @@ app.post("/login",(req, res)=>{
             
 
         }
-        return res.status(500).json({message:"server Error"})
+        return res.status(500).json({message:"server Error"});
     })
 })
 
 
 
 app.get("/register",(req, res)=>{
-    res.sendFile(__dirname + "/client/register.html")
+    res.sendFile(__dirname + "/client/register.html");
 })
 
 app.post("/register",(req, res)=>{
     const {username, userlast , useremail, userpassword, usercpasss}=req.body;
     const sql = "INSERT INTO register(username, userlast , useremail, userpassword, usercpasss) VALUES (?,?,?,?,?)";
-    con.query(sql, {username, userlast , useremail, userpassword, usercpasss}, (err,result)=>{
+    con.query(sql, [username, userlast , useremail, userpassword, usercpasss], (err,result)=>{
         if(!err){
             return res.status(200).json({message:"Successfully Created,"});
 
         }
-        return res.status(500).json({message:"server Error"})
+        return res.status(500).json({message:"server Error"});
     })
 })
 
@@ -65,9 +79,20 @@ io.on("connection", (socket) =>{
 
     console.log("connected");
 
-    socket.on("chat message", (message) =>{
+    socket.on("chat message", (messageObj) =>{
 
-        io.emit("chat message", message);
+        const {userid, message} =messageObj;
+        const sql ="INSERT INTO message(userid, ,message_text) VALUES (?,?)";
+
+        con.query (sql, [userid, message], (err, result)=>{
+            if(!err){
+                return io.emit("chat", messageObj);
+
+            }
+            return io.emit("chat", err);
+        })
+
+        io.emit("chat message", messageObj);
 
     });
 
