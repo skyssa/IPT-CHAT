@@ -25,8 +25,6 @@ app.post("/convo",(req, res)=>{
     con.query(sql, (err,result)=>{
         if(!err){
             return res.status(200).json(result);
-    
-            
 
         }
         return res.status(500).json({message:"server Error"});
