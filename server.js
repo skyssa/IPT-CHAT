@@ -4,11 +4,62 @@ const socketio = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
+const mysql= require("mysql2");
+ 
+const con = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"",
+    database:"chat_app"
+})
+
 const io = socketio(server);
+
 
 app.get("/", (req, res) =>{
     res.sendFile(__dirname + "/client/index.html");
 })
+
+app.get("/login",(req, res)=>{
+    res.sendFile(__dirname + "/client/login.html")
+})
+app.post("/login",(req, res)=>{
+    const {username, userlast , useremail, userpassword}=req.body;
+    const sql = "SELECT userid,username, userlast, useremail FROM register WHERE username=?, userlast=? , useremail=?, userpassword=?";
+    con.query(sql, {username, userlast , useremail, userpassword}, (err,result)=>{
+        if(!err){
+            if(result.affectedRows > 0){
+                return res.status(200).json({message:"Successfully login,"});
+                
+            }else{
+                return res.status(200).json({message: result, codenumber: 0});
+            }
+            
+
+        }
+        return res.status(500).json({message:"server Error"})
+    })
+})
+
+
+
+app.get("/register",(req, res)=>{
+    res.sendFile(__dirname + "/client/register.html")
+})
+
+app.post("/register",(req, res)=>{
+    const {username, userlast , useremail, userpassword, usercpasss}=req.body;
+    const sql = "INSERT INTO register(username, userlast , useremail, userpassword, usercpasss) VALUES (?,?,?,?,?)";
+    con.query(sql, {username, userlast , useremail, userpassword, usercpasss}, (err,result)=>{
+        if(!err){
+            return res.status(200).json({message:"Successfully Created,"});
+
+        }
+        return res.status(500).json({message:"server Error"})
+    })
+})
+
+
 
 io.on("connection", (socket) =>{
 
@@ -28,6 +79,8 @@ io.on("connection", (socket) =>{
 
 
 });
+
+
 
 
 server.listen(4000, () =>{

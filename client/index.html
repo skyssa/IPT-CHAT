@@ -6,12 +6,49 @@
     <title>Chat</title>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        #messages{
+            border:2px solid black;
+            padding:50px;
+            padding-left:5px;
+            padding-bottom: 0px;
+            margin-right: 60rem;
+            border-radius: 9px;
+            margin-bottom: 5px;
+        }
+        p{
+            border-radius: 5px;
+            background-color: rgb(164, 154, 255);
+            padding-top: 1px;
+            padding-bottom: 1px;
+            margin-right: 20rem, auto;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 13px;
+            
+        }
 
+        #message{
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+        #send{
+            background-color: rgb(41, 215, 238);
+            border: 1px solid aqua;
+            font-size: 13px;
+            border-radius: 3px;
+
+        }
+        
+    </style>
 
 </head>
 <body>
-
-    <!-- <div class="container">
+<!-- 
+    <div class="container">
         <p>dsakdsa</p>
     </div> -->
     <div id="messages"></div>
