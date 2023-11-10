@@ -63,7 +63,7 @@ app.post("/login",(req, res)=>{
 
 
 app.get("/register",(req, res)=>{
-    res.sendFile(__dirname + "/client/index.html");
+    res.sendFile(__dirname + "/client/regsiter/script.js");
 })
 
 app.post("/register",(req, res)=>{
