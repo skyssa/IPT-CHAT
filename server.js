@@ -14,11 +14,18 @@ const con = mysql.createConnection({
 })
 
 const io = socketio(server);
+app.use(express.static("client"));
 
+app.use(express.json());
 
 app.get("/", (req, res) =>{
     res.sendFile(__dirname + "/client/index.html");
 })
+
+app.get("/", (req, res) =>{
+    res.sendFile(__dirname + "/client/main/index.html");
+});
+
 app.post("/convo",(req, res)=>{
     
     const sql = "SELECT messageid,userid, message_text FROM message";
