@@ -74,7 +74,7 @@
             <form >
               <!-- 2 column grid layout with text inputs for the first and last names -->
               <div class="row">
-                <div class="col-md-6 mb-4">
+                <!-- <div class="col-md-6 mb-4">
                   <div class="form-outline">
                     <input type="text" id="username" class="form-control" />
                     <label class="form-label" for="form3Example1">First name</label>
@@ -86,17 +86,17 @@
                     <label class="form-label" for="form3Example2">Last name</label>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Email input -->
               <div class="form-outline mb-4">
-                <input type="email" id="useremail" class="form-control" />
+                <input type="email" id="email" class="form-control" />
                 <label class="form-label" for="form3Example3">Email address</label>
               </div>
 
               <!-- Password input -->
               <div class="form-outline mb-4">
-                <input type="password" id="userpassword" class="form-control" />
+                <input type="password" id="password" class="form-control" />
                 <label class="form-label" for="form3Example4">Password</label>
               </div>
 
@@ -109,9 +109,10 @@
               </div>
 
               <!-- Submit button -->
-              <button type="submit" class="btn btn-primary btn-block mb-4">
-                Sign up
+              <button id="loginbtn" class="loginbtn" type="submit" class="btn btn-primary btn-block mb-4">
+                Log In
               </button>
+              <p>Dont have a account? <a href="register.html">Create Here</a>.</p>
 
               <!-- Register buttons -->
               <div class="text-center">
@@ -140,5 +141,60 @@
   </div>
 </section>
 <!-- Section: Design Block -->
+<script>
+  const login = document.querySelector("#loginbtn");
+
+  login.addEventListener("click", handleLogin);
+
+  function handleLogin(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const userObj = {
+          email: email,
+          password: password
+      };
+
+      sendData(userObj);
+  }
+
+  function sendData(userObj) {
+      const url = "http://localhost:4000/login";
+      const options = {
+          method: "POST",
+          body: JSON.stringify(userObj),
+          headers: {
+              "Content-Type": "application/json"
+          }
+      };
+
+      fetch(url, options)
+          .then((response) => {
+              if (!response.ok) {
+                  throw new Error("Network response was not ok");
+              }
+              return response.json();
+          })
+          .then((data) => {
+              if (data.codeNumber === 1) {
+                  const { user_id, first_name, last_name } = data.message[0];
+
+                  console.log(data);
+
+                  localStorage.setItem("user", JSON.stringify({ user_id, first_name, last_name }));
+
+                  window.location.replace("http://localhost:4000/chat");  
+              } else {
+                  alert(data.message);
+              }
+          })
+          .catch((error) => {
+              console.error("Error during fetch:", error);
+              
+          });
+  }
+</script>
 </body>
 </html>
