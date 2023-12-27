@@ -3,34 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>My Chat</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css">
+
+
     <style>
         .page__main {
+            text-align: center;
     display: flex;
     flex-direction: column;
-    height: 100vh; 
+    font-size: large;
+
 }
 .block--background {
     background-color: #f0f0f0; 
     height: 100%;
 }
 .chatbot__overview {
-    flex: 1;
-    overflow-y: auto; 
+  
+  max-width: 600px; /* Adjust the width as needed */
+  margin: auto;
+
 }
 .chatlist {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto; /* Add a scrollbar if the messages exceed the container height */
+  max-height: 700px; /* Adjust the height as needed */
+  border: 1px solid #ccc; /* Border for the chat container */
 }
+.bot__output {
+  background-color: #f2f2f2; /* Background color for general messages */
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+}
+
 .chatbox-area {
     background-color: #fff; /* Set to desired background color for the chatbox area */
     padding: 16px;
     border-top: 1px solid #ccc;
     display: flex;
-    align-items: center;
+    flex-direction:column ;
+    width: 100;
+
 }
 .chatbox {
     flex: 1;
@@ -38,6 +59,7 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
+
 }
 
 .submit-button {
@@ -50,12 +72,13 @@
     cursor: pointer;
 }
 .my-message {
-    background-color: #4CAF50; /* Set to desired background color for your messages */
-    color: white;
-    padding: 8px;
+    background-color: rgb(1, 185, 241); /* Set to desired background color for your messages */
+    color: black;
+    padding: 2px;
     margin-bottom: 8px;
     border-radius: 5px;
-    align-self: flex-end; /* Align your messages to the right */
+    text-align: right;
+  /* Align your messages to the right */
 }
 
 .others-message {
@@ -64,95 +87,36 @@
     padding: 8px;
     margin-bottom: 8px;
     border-radius: 5px;
-    align-self: flex-start; /* Align others' messages to the left */
+    text-align: left; /* Align others' messages to the left */
 }
 
     </style>
 
+
 </head>
 <body>
-
     <main class="page__main">
+        
+        <h1>Chatbox</h1>
         <div class="block--background">
         <div class="chatbot__overview">
             <ul class="chatlist" id="chatlist">
             
            
             </ul>
+            <div class="chatbox-area">
+                <form action="" id="chatform" class="d-flex align-items-center">
+                    <textarea placeholder="Talk to me!" class="form-control chatbox" id="chatbox" name="chatbox" style="resize: none;"></textarea>
+                    <button class="btn btn-primary submit-button" id="sendbtn">Send</button>
+                </form>
+            </div>
         </div>
-        <div class="chatbox-area">
-            <form action="" id="chatform">
-                <textarea placeholder="Send your message" class="chatbox" id="chatbox" name="chatbox" resize: "none" minlength="2"></textarea>
-                <button class="submit-button" id="sendbtn">Send</button>
-            </form>
-        </div>
+        
         <div class="block--background"></div>
 
     </main>
 
-    <script>
-        function getUserId(){
-            
-            const userData = JSON.parse(localStorage.getItem("user"));
-            return userData ? userData.user_id : null;
-
-        }
-        const socket = io();
-        
-        socket.on("connect", ()=>{
-            console.log("connected");
-            const url = "http://localhost:4000/convo";
-            fetch(url, { method: "GET" })
-                .then((response) => response.json())
-                .then((data) => {
-                    data.forEach((item) => {
-                        renderMessage(item, getUserId);
-                    });
-                });
-        });  
-        socket.on("chat", (messageObj)=>{
-            renderMessage(messageObj, getUserId); 
-            console.log(messageObj);
-        });
-        const chatBox = document.querySelector("#chatbox");
-        const sendBtn = document.querySelector("#sendbtn");
-        chatBox.addEventListener("keydown", handleSend);
-        sendBtn.addEventListener("click", handleClick);
-        function handleSend(e){
-        }
-        function handleClick(e) {
-            e.preventDefault();
-            const { user_id, first_name, last_name } = JSON.parse(localStorage.getItem("user"));
-            const chatBoxContent = document.querySelector("#chatbox").value;
-            console.log(chatBoxContent);
-            const messageObj = {
-                user_id: user_id,
-                first_name: first_name,
-                last_name: last_name,
-                message_text: chatBoxContent
-            }
-            socket.emit("chat", messageObj);
-            renderMessage(messageObj, getUserId);
-            chatBox.value = "";
-        }
-        function renderMessage(messageObj, getUserId) {
-            const li = document.createElement("li");
-            li.classList.add("bot__output", "bot__output--standard");
-            if (messageObj.user_id === getUserId) {
-                li.classList.add("my-message");
-            } else {
-                li.classList.add("others-message");
-            }
-
-            li.textContent = messageObj.message_text;
-            document.querySelector("#chatlist").appendChild(li);
-        }
-
-
-
-
-
-    </script>   
+    <script src="/chat/script.js" ></script>
 </body>
 
 

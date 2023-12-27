@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const http = require("http");
 const socketio = require("socket.io");
 const app = express();
@@ -15,6 +16,19 @@ const con = mysql.createConnection({
     database:"chat_app"
 
 });
+const isAuthenticated = (req, res, next) =>{
+    const token = req.header("Authorization");
+
+    jwt.verify(token, "d2c7eae4b025a186db0f1c8490c946a9f50e5a4a3c08e769a93d22f3785bbf3d", (err, user) => {
+        if (err) {
+          return res.status(403).json({ code_number: 403, message: "Forbidden: Invalid token" });
+        }
+    
+        req.user = user;
+
+        next();
+      });
+}
 
 app.use(express.static("client"));
 
@@ -79,55 +93,66 @@ app.get("/chat", (req, res) =>{
 });
 
 
-app.get("/convo", (req, res) =>{
-    const sql = "SELECT user_id, message_text FROM message";
+// app.get("/convo", (req, res) =>{
+//     const sql = "SELECT user_id, message_text FROM message";
 
-    con.query(sql, (err, result) =>{
+//     con.query(sql, (err, result) =>{
+//         if(!err){
+//             return res.status(200).json(result);
+//         }
+
+//         return res.status(500).json({message: "Server Error"});
+
+//     });
+// });
+
+// io.on("connection", (socket) =>{
+//     socket.on("chat", (messageObj) =>{
+//         const { user_id, message_text } = messageObj;
+
+//         // console.log(messageObj);
+
+//         const sql = "INSERT INTO message(user_id, message_text) VALUES(?, ?)";
+
+//         con.query(sql, [user_id, message_text], (err, result)=>{
+            
+//             if(!err){
+//                 io.emit("chat", messageObj);
+//                 // console.log(messageObj);
+//             }
+//             else{
+//                 io.emit("chat", {user_id: 0, message_text: "Server Error"});
+//                 console.error(err);
+//             }
+            
+//         });
+
+    
+//     });
+
+//     socket.on("disconnect", ()=>{
+//         console.log("disconnected");
+
+
+//     });
+
+
+// });
+app.get("/convo", isAuthenticated, (req, res)=> {
+
+    const query = "SELECT user_id, message_text FROM message";
+
+    con.query(query, (err, result) =>{
         if(!err){
             return res.status(200).json(result);
         }
-
-        return res.status(500).json({message: "Server Error"});
-
+        return res.status(500).json({message: "Server error."});
     });
-});
-
-io.on("connection", (socket) =>{
-
-    console.log("connected");
-
-    socket.on("chat", (messageObj) =>{
-
-        const { user_id, message_text } = messageObj;
-
-        console.log(messageObj);
-
-        const sql = "INSERT INTO message(user_id, message_text) VALUES(?, ?)";
-
-        con.query(sql, [user_id, message_text], (err, result)=>{
-            
-            if(!err){
-                io.emit("chat", messageObj);
-            }
-            else{
-                io.emit("chat", {user_id: 0, message_text: "Server Error"});
-            }
-            
-        });
-
-    
-    });
-
-    socket.on("disconnect", ()=>{
-        console.log("disconnected");
-
-
-    });
-
 
 });
-
-
+// io.on("connection", (socket){
+//     console.log("User Connected")
+// });
 server.listen(4000, () =>{
     console.log("Server listening on PORT 4000");
 });
